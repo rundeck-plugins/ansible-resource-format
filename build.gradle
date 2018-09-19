@@ -1,0 +1,75 @@
+plugins {
+    id 'pl.allegro.tech.build.axion-release' version '1.3.2'
+}
+
+plugins {
+    id 'groovy'
+    id 'java'
+}
+
+group 'com.rundeck.plugin'
+
+ext.rundeckPluginVersion = '1.2'
+ext.pluginClassNames='com.rundeck.plugin.AnsibleResourceModelFormat'
+ext.pluginName = 'Ansible Resource Format Plugin'
+ext.pluginDescription = 'Translate rundeck nodes resources to ansible format'
+
+scmVersion {
+    tag {
+        prefix = ''
+        versionSeparator = ''
+        def origDeserialize=deserialize
+        //apend .0 to satisfy semver if the tag version is only X.Y
+        deserialize = { config, position, tagName ->
+            def orig = origDeserialize(config, position, tagName)
+            if (orig.split('\\.').length < 3) {
+                orig += ".0"
+            }
+            orig
+        }
+    }
+}
+project.version = scmVersion.version
+
+
+sourceCompatibility = 1.8
+
+
+repositories {
+    mavenCentral()
+}
+
+configurations {
+    pluginLibs
+
+    compile {
+        extendsFrom pluginLibs
+    }
+}
+
+
+dependencies {
+    compile 'org.codehaus.groovy:groovy-all:2.3.11'
+    compile group: 'org.rundeck', name: 'rundeck-core', version: '3.0.5-20180828'
+
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
+
+
+task copyToLib(type: Copy) {
+    into "$buildDir/output/lib"
+    from configurations.pluginLibs
+}
+
+jar {
+    from "$buildDir/output"
+    manifest {
+        def libList = configurations.pluginLibs.collect{'lib/' + it.name}.join(' ')
+        attributes 'Rundeck-Plugin-Classnames': pluginClassNames
+        attributes 'Rundeck-Plugin-File-Version': project.version
+        attributes 'Rundeck-Plugin-Version': rundeckPluginVersion
+        attributes 'Rundeck-Plugin-Archive': 'true'
+        attributes 'Rundeck-Plugin-Libs': "${libList}"
+    }
+    dependsOn(copyToLib)
+}
