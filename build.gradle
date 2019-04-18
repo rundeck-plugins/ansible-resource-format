@@ -12,7 +12,7 @@ group 'com.rundeck.plugin'
 ext.rundeckPluginVersion = '1.2'
 ext.pluginClassNames='com.rundeck.plugin.AnsibleResourceModelFormat'
 ext.pluginName = 'Ansible Resource Format Plugin'
-ext.pluginDescription = 'Translate rundeck nodes resources to ansible format'
+ext.pluginDescription = 'Translate Rundeck nodes resources to Ansible format'
 
 scmVersion {
     tag {
@@ -65,6 +65,14 @@ jar {
     from "$buildDir/output"
     manifest {
         def libList = configurations.pluginLibs.collect{'lib/' + it.name}.join(' ')
+        attributes 'Rundeck-Plugin-Name' : pluginName
+        attributes 'Rundeck-Plugin-Description' : pluginDescription
+        attributes 'Rundeck-Plugin-Rundeck-Compatibility-Version': '3.0.5+'
+        attributes 'Rundeck-Plugin-Tags': 'java,resource model,ansible'
+        attributes 'Rundeck-Plugin-License': 'Apache 2.0'
+        attributes 'Rundeck-Plugin-Source-Link': 'https://github.com/rundeck-plugins/ansible-resource-format'
+        attributes 'Rundeck-Plugin-Target-Host-Compatibility': 'all'
+        attributes 'Rundeck-Plugin-Author': 'Rundeck, Inc.'
         attributes 'Rundeck-Plugin-Classnames': pluginClassNames
         attributes 'Rundeck-Plugin-File-Version': project.version
         attributes 'Rundeck-Plugin-Version': rundeckPluginVersion
